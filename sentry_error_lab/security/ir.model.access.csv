@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_sentry_error_lab_system,sentry.error.lab system,model_sentry_error_lab,base.group_system,1,1,1,1
+access_sentry_error_lab_poison_system,sentry.error.lab.poison system,model_sentry_error_lab_poison,base.group_system,1,1,1,1
