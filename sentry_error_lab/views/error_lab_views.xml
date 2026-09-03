@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sentry_error_lab_form" model="ir.ui.view">
+        <field name="name">sentry.error.lab.form</field>
+        <field name="model">sentry.error.lab</field>
+        <field name="arch" type="xml">
+            <form string="Sentry Error Lab" create="0" delete="0">
+                <sheet>
+                    <div class="alert alert-warning" role="alert" invisible="enabled">
+                        The lab is <b>disabled</b>. Set <code>sentry_error_lab_enabled = true</code>
+                        in the Odoo server configuration and restart. Every button below raises
+                        an access message until then.
+                    </div>
+                    <div class="alert alert-info" role="alert" invisible="not enabled">
+                        Armed. Each button produces one deliberate failure so you can watch how
+                        Sentry receives it: error events, logs, traces, cron and job monitors,
+                        frontend errors and Session Replay.
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group string="Backend errors">
+                            <button name="action_python_error" type="object" string="Python exception" class="btn-danger" help="ZeroDivisionError inside a button method"/>
+                            <button name="action_sql_error" type="object" string="SQL error" class="btn-danger" help="Query against a missing table: Odoo's 'bad query'"/>
+                            <button name="action_open_poison" type="object" string="Broken compute on read" class="btn-danger" help="Opens a record whose compute raises during web_read"/>
+                            <button name="action_open_http_boom" type="object" string="HTTP 500 page" class="btn-danger" help="Opens /sentry_error_lab/http_boom in a new tab"/>
+                        </group>
+                        <group string="Logs and performance">
+                            <button name="action_log_error" type="object" string="Log an ERROR" class="btn-warning"/>
+                            <button name="action_log_warning" type="object" string="Log a WARNING" class="btn-warning"/>
+                            <field name="slow_seconds"/>
+                            <button name="action_slow_request" type="object" string="Slow request" class="btn-warning" help="Sleeps inside the request, inside a Sentry span"/>
+                        </group>
+                        <group string="Background work">
+                            <button name="action_trigger_cron" type="object" string="Failing cron" class="btn-danger" help="Triggers the lab cron, it raises on its next run"/>
+                            <field name="queue_job_available" invisible="1"/>
+                            <button name="action_queue_job_error" type="object" string="Failing queue_job" class="btn-danger" invisible="not queue_job_available"/>
+                        </group>
+                        <group string="Frontend (Loader Script, Session Replay)">
+                            <button name="action_js_component_error" type="object" string="JS error in component" class="btn-danger" help="An OWL client action throws in setup()"/>
+                            <button name="action_js_uncaught_error" type="object" string="JS uncaught error" class="btn-danger" help="throw inside setTimeout: window 'error' event"/>
+                            <button name="action_js_rejection" type="object" string="JS unhandled rejection" class="btn-danger" help="Rejected promise nobody awaits"/>
+                            <button name="action_js_capture_direct" type="object" string="Sentry.captureException" class="btn-primary" help="Calls the Loader's Sentry global directly, proves the browser SDK is present"/>
+                        </group>
+                    </group>
+                    <field name="enabled" invisible="1"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_sentry_error_lab_poison_form" model="ir.ui.view">
+        <field name="name">sentry.error.lab.poison.form</field>
+        <field name="model">sentry.error.lab.poison</field>
+        <field name="arch" type="xml">
+            <form string="Poisoned record" create="0" delete="0">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="poison"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_sentry_error_lab" model="ir.actions.act_window">
+        <field name="name">Sentry Error Lab</field>
+        <field name="res_model">sentry.error.lab</field>
+        <field name="view_mode">form</field>
+        <field name="res_id" ref="lab_record"/>
+        <field name="target">current</field>
+    </record>
+
+    <menuitem id="menu_sentry_error_lab" name="Sentry Error Lab" parent="base.menu_administration" action="action_sentry_error_lab" sequence="200" groups="base.group_system"/>
+</odoo>
